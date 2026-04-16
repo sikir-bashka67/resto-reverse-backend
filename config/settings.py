@@ -148,4 +148,4 @@ REST_FRAMEWORK = {
     ),
 }
 
-AUTH_USER_MODEL = 'staff.User'
+AUTH_USER_MODEL = 'staff.Staff'

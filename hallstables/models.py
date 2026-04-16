@@ -15,6 +15,13 @@ class Hall(models.Model):
     def __str__(self):
         return f"Зал: {self.name} ({self.height} x {self.width} метров)"
 
+    def capacity_info(self):
+        tables = self.tables.all()
+        total = sum(table.capacity for table in tables)
+        return f"Мест: {total} (Столов: {tables.count()})"
+
+    capacity_info.short_description = 'Вместимость'
+
 
 class Table(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

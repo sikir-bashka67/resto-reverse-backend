@@ -1,12 +1,13 @@
 from django.contrib import admin
 from .models import Hall, Table
 
+class TableInline(admin.TabularInline):
+    model = Table
+    extra = 1
+
 @admin.register(Hall)
 class HallAdmin(admin.ModelAdmin):
-    list_display = ('name', 'width', 'height', 'created_at')
+    list_display = ['name', 'capacity_info']
+    inlines = [TableInline]
 
-@admin.register(Table)
-class TableAdmin(admin.ModelAdmin):
-    list_display = ('name', 'hall', 'seats', 'type', 'status', 'is_deleted')
-    list_filter = ('hall', 'status', 'type')
-    search_fields = ('name',)
+admin.site.register(Table)
