@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-o#fw4!0o0!x-ttp^io11$5#zif&w)yve+pz#3oje=)g7e%i73b
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -132,9 +132,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-load_dotenv()
-SECRET_KEY = os.getenv('SECRET_KEY')
-DEBUG = os.getenv('DEBUG') == 'True'
+
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
@@ -149,3 +147,5 @@ REST_FRAMEWORK = {
 }
 
 AUTH_USER_MODEL = 'staff.Staff'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
