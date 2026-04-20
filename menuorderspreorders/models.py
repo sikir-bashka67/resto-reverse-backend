@@ -1,9 +1,7 @@
 from django.db import models
-import uuid
 
 
 class Menu(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     name = models.CharField(max_length=255, verbose_name="Название блюда")
     description = models.TextField(verbose_name="Описание")
     price = models.FloatField(verbose_name="Цена")
@@ -31,7 +29,6 @@ class Category(models.Model):
 
 
 class PreOrder(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     booking = models.ForeignKey('booking.Booking', on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -40,18 +37,16 @@ class PreOrder(models.Model):
 
 
 class Order(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     booking = models.ForeignKey('booking.Booking', on_delete=models.SET_NULL, null=True, blank=True)
     table = models.ForeignKey('hallstables.Table', on_delete=models.CASCADE)
     status = models.CharField(max_length=50, verbose_name="Статус заказа")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Заказ №{str(self.id)[:8]} | Стол {self.table.name} | {self.status}"
+        return f"Заказ №{str(self.pk)[:8]} | Стол {self.table.name} | {self.status}"
 
 
 class PreOrderItem(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     preorder = models.ForeignKey(PreOrder, on_delete=models.CASCADE, related_name='items')
     menu_item = models.ForeignKey(Menu, on_delete=models.CASCADE)
     quantity = models.IntegerField(verbose_name="Количество")
@@ -62,7 +57,6 @@ class PreOrderItem(models.Model):
 
 
 class OrderItem(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     menu_item = models.ForeignKey(Menu, on_delete=models.CASCADE)
     quantity = models.IntegerField(verbose_name="Количество")

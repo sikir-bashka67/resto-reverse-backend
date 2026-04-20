@@ -1,8 +1,7 @@
 from django.db import models
-import uuid
+
 
 class Hall(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, verbose_name="Название зала")
     width = models.FloatField(verbose_name="Ширина")
     height = models.FloatField(verbose_name="Высота")
@@ -24,7 +23,6 @@ class Hall(models.Model):
 
 
 class Table(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     hall = models.ForeignKey(Hall, on_delete=models.CASCADE, related_name='tables', verbose_name="Зал")
     name = models.CharField(max_length=255, verbose_name="Название стола")
     seats = models.PositiveIntegerField(verbose_name="Места")

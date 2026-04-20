@@ -1,9 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-import uuid
 
 class Staff(AbstractUser):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     name = models.CharField(max_length=255, verbose_name="ФИО сотрудника")
     role = models.CharField(max_length=255, verbose_name="Должность")
     phone = models.CharField(max_length=14, verbose_name="Телефон", unique=True)

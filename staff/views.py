@@ -1,3 +1,7 @@
-from django.shortcuts import render
+from rest_framework import viewsets
+from staff.models import Staff
+from staff.serializers import StaffSerializer
 
-# Create your views here.
+class StaffViewSet(viewsets.ModelViewSet):
+    queryset = Staff.objects.all()
+    serializer_class = StaffSerializer

@@ -4,7 +4,7 @@ from hallstables.models import Hall, Table
 class HallSerializer(serializers.ModelSerializer):
     class Meta:
         model = Hall
-        fields = ['id', 'name', 'width', 'height', 'created_at']
+        fields = '__all__'
 
 class TableSerializer(serializers.ModelSerializer):
     class Meta:

@@ -1,10 +1,9 @@
-import uuid
 from django.db import models
 from hallstables.models import Table
 from clients.models import Client
 
+
 class Booking(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='bookings', verbose_name="Клиент")
     table = models.ForeignKey(Table, on_delete=models.CASCADE, related_name='bookings', verbose_name="Стол")
     starting_at = models.DateTimeField(verbose_name="Время начала")
