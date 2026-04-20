@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+
 class Staff(AbstractUser):
     name = models.CharField(max_length=255, verbose_name="ФИО сотрудника")
     role = models.CharField(max_length=255, verbose_name="Должность")
