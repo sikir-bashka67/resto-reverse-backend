@@ -16,7 +16,7 @@ class Booking(models.Model):
     class Meta:
         verbose_name = "Бронирование"
         verbose_name_plural = "Бронирования"
-        ordering = ['-starting_at']
+        ordering = ['starting_at']
 
     def __str__(self):
         date_str = self.starting_at.strftime('%d.%m %H:%M')
