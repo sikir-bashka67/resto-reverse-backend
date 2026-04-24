@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from menuorderspreorders.models import Menu, Category, Profile, PreOrder, OrderItem, Order
+from menuorderspreorders.models import Menu, Category, Profile, PreOrder, OrderItem, Order, PreOrderItem
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -32,7 +32,7 @@ class PreOrderSerializer(serializers.ModelSerializer):
 
 class PreOrderItemSerializer(serializers.ModelSerializer):
     class Meta:
-        model = OrderItem
+        model = PreOrderItem
         fields = '__all__'
 
 

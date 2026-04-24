@@ -3,18 +3,18 @@ from clients.models import Client
 
 
 class ClientSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
-
     class Meta:
         model = Client
-        fields = ['name', 'email', 'password']
+        fields = ['id', 'name', 'email', 'phone', 'password', 'created_at']
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
 
     def create(self, validated_data):
-        client = Client.objects.create(name=validated_data['name'], email=validated_data['email'], password=validated_data['password'])
-        return client
+        return Client.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
-        password = validated_data.pop('password', None)
-        if password:
-            instance.set_password(password)
-        return super().update(instance, validated_data)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance

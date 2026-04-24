@@ -46,7 +46,8 @@ class PreOrder(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Предзаказ к брони {self.booking.id}"
+        booking_id = self.booking.id if self.booking else "Без брони"
+        return f"Предзаказ №{self.pk} (Бронь: {booking_id})"
 
 
 class Order(models.Model):

@@ -2,7 +2,6 @@ from django.db import models
 import qrcode
 from io import BytesIO
 from django.core.files import File
-from PIL import Image
 
 
 class Hall(models.Model):
@@ -20,7 +19,7 @@ class Hall(models.Model):
 
     def capacity_info(self):
         tables = self.tables.all()
-        total = sum(table.capacity for table in tables)
+        total = sum(table.seats for table in tables)
         return f"Мест: {total} (Столов: {tables.count()})"
 
     capacity_info.short_description = 'Вместимость'
@@ -45,8 +44,17 @@ class Table(models.Model):
         unique_together = ('hall', 'name')
 
     def save(self, *args, **kwargs):
-        qr_data = f"https://resto.com/table/{self.pk}/"
-        qr = qrcode.QRCode(version=1, box_size=10, border=5)
+        is_new = self.pk is None
+
+        if is_new:
+            super().save(*args, **kwargs)
+        qr_data = f"http://resto-fresh.com/table/{self.id}/"
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
         qr.add_data(qr_data)
         qr.make(fit=True)
 
@@ -54,7 +62,9 @@ class Table(models.Model):
 
         buffer = BytesIO()
         img.save(buffer, format='PNG')
-        filename = f'table_qr_{self.table_number}.png'
+
+        filename = f'table_qr_{self.id}.png'
+
         self.qr_code.save(filename, File(buffer), save=False)
 
         super().save(*args, **kwargs)
