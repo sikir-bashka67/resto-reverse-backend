@@ -7,7 +7,7 @@ class StaffSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Staff
-        fields = ['id', 'name', 'role', 'email', 'phone', 'password', 'created_at']
+        fields = ['id', 'username', 'name', 'role', 'email', 'phone', 'password', 'created_at']
 
     def create(self, validated_data):
         return Staff.objects.create_user(**validated_data)

@@ -32,7 +32,6 @@ class Category(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile")
-    email = models.EmailField(blank=True, verbose_name="E-mail")
     bio = models.TextField(max_length=500, blank=True, verbose_name="О себе")
     location = models.CharField(max_length=30, blank=True, verbose_name="Город")
     birth_date = models.DateField(null=True, blank=True, verbose_name="Дата рождения")

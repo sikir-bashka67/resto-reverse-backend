@@ -18,6 +18,7 @@ class MenuSerializer(serializers.ModelSerializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
     email = serializers.ReadOnlyField(source='user.email')
+    username = serializers.CharField(source='user.username', read_only=True)
 
     class Meta:
         model = Profile
