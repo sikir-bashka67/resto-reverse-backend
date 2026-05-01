@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-o#fw4!0o0!x-ttp^io11$5#zif&w)yve+pz#3oje=)g7e%i73b
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+SITE_ID = 1
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'hallstables',
     'booking',
     'menuorderspreorders',
@@ -50,7 +52,7 @@ INSTALLED_APPS = [
     'phonenumber_field',
     'django_filters',
     'qrcode',
-    'djangorestframework-simplejwt'
+    'rest_framework_simplejwt'
 ]
 
 MIDDLEWARE = [

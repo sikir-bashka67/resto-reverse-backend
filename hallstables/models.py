@@ -25,8 +25,8 @@ class Hall(models.Model):
         if " " in self.name:
             raise ValidationError("Эта строка не может содержать пробелы.")
 
-        if not self.name.strip():
-            raise ValidationError("Эта строка не может быть пустой.")
+        if not self.name or not self.name.strip():
+            raise ValidationError("Название не может быть пустым.")
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -63,40 +63,32 @@ class Table(models.Model):
         if " " in self.name:
             raise ValidationError("Эта строка не может содержать пробелы.")
 
+        if not self.name or not self.name.strip():
+            raise ValidationError("Название не может быть пустым.")
+
         if self.seats <= 0:
             raise ValidationError("Эта строка обязательно должна быть положительной.")
 
-        if self.x > self.hall.x or self.y > self.hall.y or self.x < 0 or self.y < 0:
-            raise ValidationError("Это значение не может быть выше установленного значения зала.")
+        if self.x > self.hall.width or self.y > self.hall.height or self.x < 0 or self.y < 0:
+            raise ValidationError("Стол выходит за границы зала!")
 
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
 
-        is_new = self.pk is None
+        if not self.qr_code:
+            qr_data = f"https://resto-fresh.com/table/{self.pk}/"
+            qr = qrcode.QRCode(version=1, box_size=10, border=4)
+            qr.add_data(qr_data)
+            qr.make(fit=True)
+            img = qr.make_image(fill_color="black", back_color="white")
 
-        if is_new:
+            buffer = BytesIO()
+            img.save(buffer, format='PNG')
+
+            self.qr_code.save(f'table_qr_{self.pk}.png', File(buffer), save=False)
+
             super().save(*args, **kwargs)
-        qr_data = f"https://resto-fresh.com/table/{self.pk}/"
-        qr = qrcode.QRCode(
-            version=1,
-            error_correction=qrcode.constants.ERROR_CORRECT_L,
-            box_size=10,
-            border=4,
-        )
-        qr.add_data(qr_data)
-        qr.make(fit=True)
-
-        img = qr.make_image(fill_color="black", back_color="white")
-
-        buffer = BytesIO()
-        img.save(buffer, format='PNG')
-
-        filename = f'table_qr_{self.pk}.png'
-
-        self.qr_code.save(filename, File(buffer), save=False)
-
-        super().save(*args, **kwargs)
         # Сделал ИИ-шкой, так как, ну, банально, мы такое не проходили, но структуру кода понимаю!
 
     def __str__(self):

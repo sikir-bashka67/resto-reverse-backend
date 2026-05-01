@@ -10,7 +10,7 @@ class Menu(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена")
     is_available = models.BooleanField(default=True, verbose_name="В наличии")
     created_at = models.DateTimeField(auto_now_add=True)
-    category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=False, blank=False)
+    category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
         verbose_name = "Блюдо"
@@ -21,8 +21,8 @@ class Menu(models.Model):
         return f"{status} {self.name} ({self.price} с)"
 
     def clean(self):
-        if self.name.strip():
-            raise ValidationError("Эта строка не может быть пустой.")
+        if not self.name or not self.name.strip():
+            raise ValidationError("Название не может быть пустым.")
 
         if self.price <= 0:
             raise ValidationError("Эта строка не может быть отрицательной.")
@@ -33,7 +33,7 @@ class Menu(models.Model):
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=100, verbose_name="Категория", unique=True)
+    name = models.CharField(max_length=100, verbose_name="Категория", null=True, blank=True)
 
     class Meta:
         verbose_name = "Категория блюд"
@@ -43,8 +43,8 @@ class Category(models.Model):
         return self.name
 
     def clean(self):
-        if self.name.strip():
-            raise ValidationError("Эта строка не может быть пустой.")
+        if not self.name or not self.name.strip():
+            raise ValidationError("Название не может быть пустым.")
 
         if " " in self.name:
             raise ValidationError("Эта строка не может содержать пробелы.")
@@ -74,8 +74,8 @@ class Profile(models.Model):
 
 class PreOrder(models.Model):
     STATUS_CHOICES = [('requested', 'Requested'), ('processing', 'Processing'), ('was_given', 'Was_given')]
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    status = models.CharField(max_length=50, verbose_name="Статус предзаказа")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
+    status = models.CharField(max_length=50, verbose_name="Статус предзаказа", default="processing")
     booking = models.ForeignKey('booking.Booking', on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -86,10 +86,10 @@ class PreOrder(models.Model):
 
 class Order(models.Model):
     STATUS_CHOICES = [('requested', 'Requested'), ('processing', 'Processing'), ('was_given', 'Was_given')]
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
     booking = models.ForeignKey('booking.Booking', on_delete=models.SET_NULL, null=True, blank=True)
     table = models.ForeignKey('hallstables.Table', on_delete=models.CASCADE)
-    status = models.CharField(max_length=50, verbose_name="Статус заказа")
+    status = models.CharField(max_length=50, verbose_name="Статус заказа", default="processing")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -100,7 +100,7 @@ class PreOrderItem(models.Model):
     preorder = models.ForeignKey(PreOrder, on_delete=models.CASCADE, related_name='items')
     menu_item = models.ForeignKey(Menu, on_delete=models.CASCADE)
     quantity = models.IntegerField(verbose_name="Количество")
-    price_at_ordering_time = models.DecimalField(max_digits=10,decimal_places=2 , verbose_name="Цена при заказе")
+    price_at_ordering_time = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена при заказе", default=0)
 
     def __str__(self):
         return f"{self.menu_item.name} x {self.quantity} (по {self.price_at_ordering_time} с)"
@@ -121,7 +121,7 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     menu_item = models.ForeignKey(Menu, on_delete=models.CASCADE)
     quantity = models.IntegerField(verbose_name="Количество")
-    price_at_ordering_time = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена при заказе")
+    price_at_ordering_time = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена при заказе", default=0)
 
     def __str__(self):
         return f"{self.menu_item.name} ({self.quantity} шт.)"
