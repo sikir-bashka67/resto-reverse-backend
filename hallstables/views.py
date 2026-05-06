@@ -11,6 +11,6 @@ class HallViewSet(viewsets.ModelViewSet):
 
 
 class TableViewSet(viewsets.ModelViewSet):
-    queryset = Table.objects.all()
+    queryset = Table.objects.select_related('hall').all()
     serializer_class = TableSerializer
     permission_classes = [IsAuthenticated]

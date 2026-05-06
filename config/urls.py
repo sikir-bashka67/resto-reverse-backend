@@ -22,6 +22,24 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
+from rest_framework import routers
+from staff.views import StaffViewSet
+from booking.views import BookingViewSet
+from clients.views import ClientViewSet
+from menuorderspreorders.views import OrderViewSet, PreOrderViewSet, ProfileViewSet, CategoryViewSet, MenuViewSet
+from hallstables.views import HallViewSet, TableViewSet
+
+router = routers.DefaultRouter()
+router.register(r'staff', StaffViewSet)
+router.register(r'menu', MenuViewSet)
+router.register(r'client', ClientViewSet)
+router.register(r'booking', BookingViewSet)
+router.register(r'order', OrderViewSet)
+router.register(r'preorder', PreOrderViewSet)
+router.register(r'profile', ProfileViewSet)
+router.register(r'category', CategoryViewSet)
+router.register(r'hall', HallViewSet)
+router.register(r'table', TableViewSet)
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -31,22 +49,15 @@ schema_view = get_schema_view(
     ),
     public=True,
     permission_classes=[permissions.AllowAny],
-
-
 )
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/', include(router.urls)),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-    path('api/', include('staff.urls')),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/', include('hallstables.urls')),
-    path('api/', include('menuorderspreorders.urls')),
-    path('api/', include('booking.urls')),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/', include('clients.urls')),
-
 ]
 
 if settings.DEBUG:

@@ -5,7 +5,7 @@ from .serializers import MenuSerializer, CategorySerializer, ProfileSerializer, 
 
 
 class MenuViewSet(viewsets.ModelViewSet):
-    queryset = Menu.objects.all()
+    queryset = Menu.objects.select_related('category').all()
     serializer_class = MenuSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
@@ -16,10 +16,24 @@ class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
 
+class ProfileViewSet(viewsets.ModelViewSet):
+    serializer_class = ProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Profile.objects.filter(user=self.request.user)
+
+
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Order.objects.filter(profile__user=self.request.user).select_related('profile')
+
+    def perform_create(self, serializer):
+        serializer.save(profile=self.request.user.profile) # type: ignore
 
 
 class PreOrderViewSet(viewsets.ModelViewSet):
@@ -27,8 +41,8 @@ class PreOrderViewSet(viewsets.ModelViewSet):
     serializer_class = PreOrderSerializer
     permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        return PreOrder.objects.filter(profile__user=self.request.user).select_related('profile')
 
-class ProfileViewSet(viewsets.ModelViewSet):
-    queryset = Profile.objects.all()
-    serializer_class = ProfileSerializer
-    permission_classes = [IsAuthenticated]
+    def perform_create(self, serializer):
+        serializer.save(profile=self.request.user.profile) # type: ignore
