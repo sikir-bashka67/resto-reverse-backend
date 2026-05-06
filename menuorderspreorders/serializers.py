@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from menuorderspreorders.models import Menu, Category, Profile, PreOrder, OrderItem, Order, PreOrderItem
-from django.utils import timezone
+from django.contrib.auth.models import User
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -10,7 +10,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class MenuSerializer(serializers.ModelSerializer):
-    category = CategorySerializer(read_only=True)
+    category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
 
     class Meta:
         model = Menu
@@ -27,30 +27,28 @@ class MenuSerializer(serializers.ModelSerializer):
         return value
 
 
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email']
+
+
 class ProfileSerializer(serializers.ModelSerializer):
-    email = serializers.ReadOnlyField(source='user.email')
-    username = serializers.CharField(source='user.username', read_only=True)
+    user = UserUpdateSerializer()
 
     class Meta:
         model = Profile
-        fields = ['id', 'user', 'email', 'bio', 'location', 'birth_date']
-
-    def validate_birth_date(self, value):
-        if value > timezone.now().date():
-            raise serializers.ValidationError(
-                "Дата рождения не может быть в будущем"
-            )
-        return value
+        fields = ['user', 'phone', 'birth_date']
 
     def update(self, instance, validated_data):
-        user_data = validated_data.pop('user', {})
-        new_email = user_data.get('email')
+        user_data = validated_data.pop('user', None)
+        profile = super().update(instance, validated_data)
+        if user_data:
+            user = instance.user
+            user.email = user_data.get('email', user.email)
+            user.save()
 
-        if new_email and instance.user:
-            instance.user.email = new_email
-            instance.user.save()
-
-        return super().update(instance, validated_data)
+        return profile
 
 
 class PreOrderSerializer(serializers.ModelSerializer):
@@ -67,13 +65,12 @@ class PreOrderItemSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if data.get('quantity', 0) <= 0:
             raise serializers.ValidationError({"quantity": "Количество должно быть больше 0"})
-        if data.get('price_at_order_time', 0) <= 0:
-            raise serializers.ValidationError({"price_at_order_time": "Цена должна быть больше 0"})
+        if data.get('price_at_ordering_time', 0) <= 0:
+            raise serializers.ValidationError({"price_at_ordering_time": "Цена должна быть больше 0"})
         return data
 
 
 class OrderSerializer(serializers.ModelSerializer):
-
 
     class Meta:
         model = Order
@@ -88,6 +85,6 @@ class OrderItemSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if data.get('quantity', 0) <= 0:
             raise serializers.ValidationError({"quantity": "Количество должно быть больше 0"})
-        if data.get('price_at_order_time', 0) <= 0:
-            raise serializers.ValidationError({"price_at_order_time": "Цена должна быть больше 0"})
+        if data.get('price_at_ordering_time', 0) <= 0:
+            raise serializers.ValidationError({"price_at_ordering_time": "Цена должна быть больше 0"})
         return data

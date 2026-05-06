@@ -17,6 +17,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class ProfileViewSet(viewsets.ModelViewSet):
+    queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticated]
 
@@ -30,10 +31,10 @@ class OrderViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Order.objects.filter(profile__user=self.request.user).select_related('profile')
+        return Order.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save(profile=self.request.user.profile) # type: ignore
+        serializer.save(user=self.request.user)  # type: ignore
 
 
 class PreOrderViewSet(viewsets.ModelViewSet):
@@ -42,7 +43,7 @@ class PreOrderViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return PreOrder.objects.filter(profile__user=self.request.user).select_related('profile')
+        return Order.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save(profile=self.request.user.profile) # type: ignore
+        serializer.save(user=self.request.user)  # type: ignore

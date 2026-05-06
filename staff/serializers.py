@@ -1,14 +1,11 @@
 from rest_framework import serializers
 from staff.models import Staff
-from django.core.validators import RegexValidator
+from common.validators import validate_phone
 from django.contrib.auth.hashers import make_password
 
 
 class StaffSerializer(serializers.ModelSerializer):
-    phone_validator = RegexValidator(
-        regex=r'^\+?1?\d{9,15}$',
-        message="В номере должны быть только числа!"
-    )
+    phone = serializers.CharField(validators=[validate_phone])
 
     class Meta:
         model = Staff
@@ -22,7 +19,7 @@ class StaffSerializer(serializers.ModelSerializer):
 
     def validate_name(self, value):
         if not value or value.strip() == "":
-            raise serializers.ValidationError("ФИО не может быть пустым")
+            raise serializers.ValidationError("Имя не может быть пустым.")
         return value
 
     def create(self, validated_data):

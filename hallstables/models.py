@@ -2,7 +2,7 @@ from django.db import models
 import qrcode
 from io import BytesIO
 from django.core.files import File
-from rest_framework.exceptions import ValidationError
+from django.core.exceptions import ValidationError
 
 
 class Hall(models.Model):
@@ -49,7 +49,7 @@ class Table(models.Model):
     type = models.CharField(max_length=50, verbose_name="Тип")
     x = models.FloatField(verbose_name="Координата X")
     y = models.FloatField(verbose_name="Координата Y")
-    status = models.CharField(verbose_name="Состояние", null=False, blank=False, max_length=20)
+    status = models.CharField(verbose_name="Состояние", null=False, blank=False, max_length=20, choices=STATUS_CHOICES, default='available')
     is_deleted = models.BooleanField(default=False, verbose_name="Удален")
     created_at = models.DateTimeField(auto_now_add=True)
     qr_code = models.ImageField(upload_to='qr_codes/', blank=True, null=True)
@@ -60,9 +60,6 @@ class Table(models.Model):
         unique_together = ('hall', 'name')
 
     def clean(self):
-        if " " in self.name:
-            raise ValidationError("Эта строка не может содержать пробелы.")
-
         if not self.name or not self.name.strip():
             raise ValidationError("Название не может быть пустым.")
 
@@ -89,7 +86,6 @@ class Table(models.Model):
             self.qr_code.save(f'table_qr_{self.pk}.png', File(buffer), save=False)
 
             super().save(*args, **kwargs)
-        # Сделал ИИ-шкой, так как, ну, банально, мы такое не проходили, но структуру кода понимаю!
 
     def __str__(self):
         return f"Стол {self.name} | {self.hall.name} | Мест: {self.seats} | Тип: {self.type}"

@@ -64,8 +64,9 @@ class Profile(models.Model):
         return f"Профиль пользователя: {self.user.username}"
 
     def clean(self):
-        if self.birth_date > timezone.now().date():
-            raise ValidationError("Дата рождения не может быть в будущем.")
+        if self.birth_date and self.birth_date > timezone.now().date():
+            raise ValidationError({"birth_date": "Дата рождения не может быть в будущем."})
+        super().clean()
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -75,7 +76,7 @@ class Profile(models.Model):
 class PreOrder(models.Model):
     STATUS_CHOICES = [('requested', 'Requested'), ('processing', 'Processing'), ('was_given', 'Was_given')]
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
-    status = models.CharField(max_length=50, verbose_name="Статус предзаказа", default="processing")
+    status = models.CharField(max_length=50, verbose_name="Статус предзаказа", default="processing", choices=STATUS_CHOICES)
     booking = models.ForeignKey('booking.Booking', on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -89,7 +90,7 @@ class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
     booking = models.ForeignKey('booking.Booking', on_delete=models.SET_NULL, null=True, blank=True)
     table = models.ForeignKey('hallstables.Table', on_delete=models.CASCADE)
-    status = models.CharField(max_length=50, verbose_name="Статус заказа", default="processing")
+    status = models.CharField(max_length=50, verbose_name="Статус заказа", default="processing", choices=STATUS_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -107,10 +108,10 @@ class PreOrderItem(models.Model):
 
     def clean(self):
         if self.price_at_ordering_time <= 0:
-            raise ValidationError("Нелогичное выражение.")
+            raise ValidationError("Цена должна быть больше нуля.")
 
         if self.quantity <= 0:
-            raise ValidationError("Нелогичное выражение.")
+            raise ValidationError("Количество должно быть больше нуля.")
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -128,10 +129,10 @@ class OrderItem(models.Model):
 
     def clean(self):
         if self.price_at_ordering_time <= 0:
-            raise ValidationError("Нелогичное выражение.")
+            raise ValidationError("Цена должна быть больше нуля.")
 
         if self.quantity <= 0:
-            raise ValidationError("Нелогичное выражение.")
+            raise ValidationError("Цена должна быть больше нуля.")
 
     def save(self, *args, **kwargs):
         self.full_clean()

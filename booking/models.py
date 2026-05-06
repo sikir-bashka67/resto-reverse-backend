@@ -1,5 +1,5 @@
 from django.db import models
-from rest_framework.exceptions import ValidationError
+from django.core.exceptions import ValidationError
 from hallstables.models import Table
 from clients.models import Client
 from django.utils import timezone
@@ -12,7 +12,7 @@ class Booking(models.Model):
     starting_at = models.DateTimeField(verbose_name="Время начала")
     ending_at = models.DateTimeField(verbose_name="Время окончания")
     guest_count = models.IntegerField(verbose_name="Количество гостей")
-    status = models.CharField(max_length=50, verbose_name="Состояние")
+    status = models.CharField(max_length=50, verbose_name="Состояние", choices=STATUS_CHOICES)
     qr_code = models.CharField(max_length=255, verbose_name="QR-код")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
 
