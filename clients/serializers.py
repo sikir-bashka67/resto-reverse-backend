@@ -1,8 +1,10 @@
 from django.contrib.auth.hashers import make_password
 from django.core.validators import RegexValidator
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
-
 from clients.models import Client
+
+User = get_user_model()
 
 
 class ClientSerializer(serializers.ModelSerializer):
@@ -49,3 +51,19 @@ class ClientSerializer(serializers.ModelSerializer):
         if 'name' in validated_data:
             validated_data['name'] = validated_data['name'].strip()
         return super().update(instance, validated_data)
+
+
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ['username', 'password', 'email']
+
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data.get('email', ''),
+            password=validated_data['password']
+        )
+        return user

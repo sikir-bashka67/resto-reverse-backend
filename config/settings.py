@@ -117,3 +117,5 @@ CORS_ALLOWED_ORIGINS = os.getenv(
     'DJANGO_CORS_ALLOWED_ORIGINS',
     'http://127.0.0.1:3000,http://localhost:3000',
 ).split(',')
+
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

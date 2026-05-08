@@ -5,9 +5,11 @@ from django.db import models
 class Client(models.Model):
     name = models.CharField(max_length=100, verbose_name='Имя клиента')
     phone = models.CharField(max_length=16, verbose_name='Телефон', unique=True)
-    password = models.CharField(max_length=128, verbose_name='Пароль')
+    password = models.CharField(max_length=128, verbose_name='Пароль', blank=True, null=True)
     email = models.EmailField(verbose_name='E-mail')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+
+    REQUIRED_FIELDS = ['email']
 
     class Meta:
         verbose_name = 'Клиент'

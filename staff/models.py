@@ -6,7 +6,7 @@ from django.db import models
 class Staff(AbstractUser):
     name = models.CharField(max_length=255, verbose_name='Имя сотрудника', blank=True, null=False)
     role = models.CharField(max_length=100, verbose_name='Должность')
-    phone = models.CharField(max_length=16, verbose_name='Телефон', unique=True, blank=False, null=False)
+    phone = models.CharField(max_length=16, verbose_name='Телефон', unique=True, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
 
     REQUIRED_FIELDS = ['email']

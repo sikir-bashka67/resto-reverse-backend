@@ -6,12 +6,12 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions, routers
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-
 from booking.views import BookingViewSet
 from clients.views import ClientViewSet
 from hallstables.views import HallViewSet, TableViewSet
 from menuorderspreorders.views import CategoryViewSet, MenuViewSet, OrderViewSet, PreOrderViewSet, ProfileViewSet
 from staff.views import StaffViewSet
+from clients.views import RegisterView
 
 router = routers.DefaultRouter()
 router.register(r'staff', StaffViewSet)
@@ -20,7 +20,7 @@ router.register(r'client', ClientViewSet)
 router.register(r'booking', BookingViewSet)
 router.register(r'order', OrderViewSet)
 router.register(r'preorder', PreOrderViewSet)
-router.register(r'profile', ProfileViewSet)
+router.register(r'profile', ProfileViewSet, basename='profile')
 router.register(r'category', CategoryViewSet)
 router.register(r'hall', HallViewSet)
 router.register(r'table', TableViewSet)
@@ -41,7 +41,9 @@ urlpatterns = [
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/auth/register/', RegisterView.as_view(), name='auth_register'),
+    path('api/auth/login/', TokenObtainPairView.as_view(), name='auth_login'),
+    path('api/auth/refresh/', TokenRefreshView.as_view(), name='auth_token_refresh')
 ]
 
 if settings.DEBUG:
