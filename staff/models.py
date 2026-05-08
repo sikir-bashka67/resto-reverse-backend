@@ -1,30 +1,34 @@
 from django.contrib.auth.models import AbstractUser
-from django.db import models
 from django.core.exceptions import ValidationError
-from common.validators import validate_phone
+from django.db import models
 
 
 class Staff(AbstractUser):
-    name = models.CharField(max_length=255, verbose_name="ФИО сотрудника", blank=True, null=False, unique=False)
-    role = models.CharField(max_length=100, verbose_name="Должность")
-    phone = models.CharField(max_length=15, verbose_name="Телефон", unique=True, blank=False, null=False, validators=[validate_phone])
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата регистрации")
+    name = models.CharField(max_length=255, verbose_name='Имя сотрудника', blank=True, null=False)
+    role = models.CharField(max_length=100, verbose_name='Должность')
+    phone = models.CharField(max_length=16, verbose_name='Телефон', unique=True, blank=False, null=False)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
 
     REQUIRED_FIELDS = ['email']
 
     class Meta:
-        verbose_name = "Сотрудник"
-        verbose_name_plural = "Сотрудники"
+        verbose_name = 'Сотрудник'
+        verbose_name_plural = 'Сотрудники'
 
     def __str__(self):
-        return f"{self.name} - {self.role}"
+        return f'{self.name} - {self.role}'
 
     def clean(self):
-        if len(self.phone) < 15:
-            raise ValidationError("Слишком короткий номер телефона.")
+        self.name = (self.name or '').strip()
+        self.phone = (self.phone or '').strip()
 
-        if not self.name or not self.name.strip():
-            raise ValidationError("Имя не может быть пустым.")
+        normalized_phone = self.phone.lstrip('+')
+        if not normalized_phone.isdigit():
+            raise ValidationError("Телефон должен содержать только цифры и может начинаться с '+'.")
+        if not 9 <= len(normalized_phone) <= 15:
+            raise ValidationError('Длина телефона должна быть от 9 до 15 цифр.')
+        if not self.name:
+            raise ValidationError('Имя сотрудника не может быть пустым.')
 
     def save(self, *args, **kwargs):
         self.full_clean()

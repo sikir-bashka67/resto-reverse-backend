@@ -1,7 +1,8 @@
-from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from .models import Menu, Category, Profile, Order, PreOrder
-from .serializers import MenuSerializer, CategorySerializer, ProfileSerializer, OrderSerializer, PreOrderSerializer
+from rest_framework import viewsets
+
+from .models import Category, Menu, Order, PreOrder, Profile
+from .serializers import CategorySerializer, MenuSerializer, OrderSerializer, PreOrderSerializer, ProfileSerializer
 
 
 class MenuViewSet(viewsets.ModelViewSet):
@@ -17,33 +18,32 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class ProfileViewSet(viewsets.ModelViewSet):
-    queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Profile.objects.filter(user=self.request.user)
+        return Profile.objects.filter(user=self.request.user).select_related('user')
 
 
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all()
+    queryset = Order.objects.select_related('user', 'table', 'booking').all()
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Order.objects.filter(user=self.request.user)
+        return self.queryset.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)  # type: ignore
+        serializer.save(user=self.request.user)
 
 
 class PreOrderViewSet(viewsets.ModelViewSet):
-    queryset = PreOrder.objects.all()
+    queryset = PreOrder.objects.select_related('user', 'booking').all()
     serializer_class = PreOrderSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Order.objects.filter(user=self.request.user)
+        return self.queryset.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)  # type: ignore
+        serializer.save(user=self.request.user)

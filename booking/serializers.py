@@ -1,6 +1,7 @@
-from rest_framework import serializers
-from booking.models import Booking
 from django.utils import timezone
+from rest_framework import serializers
+
+from booking.models import Booking
 
 
 class BookingSerializer(serializers.ModelSerializer):
@@ -16,25 +17,25 @@ class BookingSerializer(serializers.ModelSerializer):
 
         if starting_at and ending_at:
             if starting_at >= ending_at:
-                raise serializers.ValidationError("Дата окончания должна быть позже даты начала")
+                raise serializers.ValidationError('Дата окончания должна быть позже даты начала.')
             if starting_at < timezone.now():
-                raise serializers.ValidationError("Бронирование не может быть создано в прошлом")
+                raise serializers.ValidationError('Бронирование не может быть создано в прошлом.')
 
         if guest_count and table:
             if guest_count <= 0:
-                raise serializers.ValidationError("Количество гостей должно быть больше 0")
+                raise serializers.ValidationError('Количество гостей должно быть больше 0.')
             if guest_count > table.seats:
-                raise serializers.ValidationError("Количество гостей не может превышать количество мест за столом")
+                raise serializers.ValidationError('Количество гостей не может превышать количество мест за столом.')
 
         if table and starting_at and ending_at:
             overlap = Booking.objects.filter(
                 table=table,
                 starting_at__lt=ending_at,
-                ending_at__gt=starting_at
+                ending_at__gt=starting_at,
             )
             if self.instance:
                 overlap = overlap.exclude(pk=self.instance.pk)
             if overlap.exists():
-                raise serializers.ValidationError("Этот стол уже забронирован на выбранное время")
+                raise serializers.ValidationError('Этот стол уже забронирован на выбранное время.')
 
         return data
