@@ -111,7 +111,7 @@ class PreOrderItem(models.Model):
         return f'{self.menu_item.name} x {self.quantity} ({self.price_at_ordering_time})'
 
     def clean(self):
-        if self.price_at_ordering_time <= 0:
+        if self.pk and self.price_at_ordering_time <= 0:
             raise ValidationError({'price_at_ordering_time': 'Цена на момент заказа должна быть больше 0.'})
         if self.quantity <= 0:
             raise ValidationError({'quantity': 'Количество должно быть больше 0.'})
@@ -132,7 +132,7 @@ class OrderItem(models.Model):
         return f'{self.menu_item.name} ({self.quantity})'
 
     def clean(self):
-        if self.price_at_ordering_time <= 0:
+        if self.pk and self.price_at_ordering_time <= 0:
             raise ValidationError({'price_at_ordering_time': 'Цена на момент заказа должна быть больше 0.'})
         if self.quantity <= 0:
             raise ValidationError({'quantity':'Количество должно быть больше 0.'})

@@ -42,9 +42,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def validate_birth_date(self, value):
         if value > timezone.now().date():
-            raise serializers.ValidationError(
-                {'birth_date': 'Дата рождения не может быть в будущем.'}
-            )
+            raise serializers.ValidationError('Дата рождения не может быть в будущем.')
         return value
 
 
