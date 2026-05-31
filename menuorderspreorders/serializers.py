@@ -19,17 +19,13 @@ class MenuSerializer(serializers.ModelSerializer):
 
     def validate_price(self, value):
         if value <= 0:
-            raise serializers.ValidationError(
-                {'price': 'Цена не может быть ниже нуля.'}
-            )
+            raise serializers.ValidationError('Цена не может быть ниже нуля.')
         return value
 
     def validate_name(self, value):
         value = (value or '').strip()
         if not value:
-            raise serializers.ValidationError(
-                {'name': 'Название не может быть пустым.'}
-            )
+            raise serializers.ValidationError('Название не может быть пустым.')
         return value
 
 
@@ -71,8 +67,6 @@ class PreOrderItemSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if data.get('quantity', 0) <= 0:
             raise serializers.ValidationError({'quantity': 'Количество должно быть больше 0.'})
-        if data.get('price_at_ordering_time', 0) <= 0:
-            raise serializers.ValidationError({'price_at_ordering_time': 'Цена должна быть больше 0.'})
         return data
 
 
@@ -94,7 +88,5 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         if data.get('quantity', 0) <= 0:
-            raise serializers.ValidationError({'quantity': 'Количество должно быть больше 0.'})
-        if data.get('price_at_ordering_time', 0) <= 0:
-            raise serializers.ValidationError({'price_at_ordering_time': 'Цена должна быть больше 0.'})
+            raise serializers.ValidationError('Количество должно быть больше 0.')
         return data
