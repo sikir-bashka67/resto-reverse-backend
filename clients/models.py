@@ -1,40 +1,27 @@
-from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from django.db import models
+from django.conf import settings
 
 
 class Client(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='client_profile')
     name = models.CharField(max_length=100, verbose_name='Имя клиента')
-    phone = models.CharField(max_length=16, verbose_name='Телефон', unique=True)
-    password = models.CharField(max_length=128, verbose_name='Пароль', blank=True, null=True)
+    phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Телефон должен быть в формате: '+999999999'. От 9 до 15 цифр.")
+    phone = models.CharField(validators=[phone_regex], max_length=16, verbose_name='Телефон', unique=True)
     email = models.EmailField(verbose_name='E-mail')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
-
-    REQUIRED_FIELDS = ['email']
 
     class Meta:
         verbose_name = 'Клиент'
         verbose_name_plural = 'Клиенты'
+        ordering = ['-created_at']
 
     def __str__(self):
-        return f'{self.name} - {self.phone}'
-
-    def clean(self):
-        self.name = (self.name or '').strip()
-        self.phone = (self.phone or '').strip()
-
-        if not self.name:
-            raise ValidationError('Имя клиента не может быть пустым.')
-
-        normalized_phone = self.phone.lstrip('+')
-        if not normalized_phone.isdigit():
-            raise ValidationError("Телефон должен содержать только цифры и может начинаться с '+'.")
-
-        if not 9 <= len(normalized_phone) <= 15:
-            raise ValidationError('Длина телефона должна быть от 9 до 15 цифр.')
-
-        if len(self.password or '') < 8:
-            raise ValidationError('Пароль должен содержать не менее 8 символов.')
+        return f'{self.name} ({self.phone})'
 
     def save(self, *args, **kwargs):
-        self.full_clean()
+        if self.name:
+            self.name = self.name.strip()
+        if self.phone:
+            self.phone = self.phone.strip()
         super().save(*args, **kwargs)

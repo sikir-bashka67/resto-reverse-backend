@@ -1,7 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
-
 from clients.models import Client
 from hallstables.models import Table
 

@@ -7,7 +7,11 @@ class BookingAdmin(admin.ModelAdmin):
     list_filter = ('status', 'starting_at', 'table__hall')
     search_fields = ('client__name', 'client__phone', 'qr_code')
 
-    # Это я сделал, чтобы uuid не занимал пол экрана, Андрей!
+    list_editable = ('status', 'guest_count')
+
+    date_hierarchy = 'starting_at'
+
+    autocomplete_fields = ['client', 'table']
     def id_short(self, obj):
         return str(obj.id)[:8]
     id_short.short_description = 'ID'

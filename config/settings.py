@@ -5,10 +5,11 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'dev-only-secret-key')
-DEBUG = os.environ.get('DJANGO_DEBUG')
+# DEBUG = os.environ.get('DJANGO_DEBUG')
+DEBUG = True
 SITE_ID = 1
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(",")
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -62,13 +63,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -82,6 +76,7 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = []
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = '/media/'
@@ -116,13 +111,20 @@ CORS_ALLOWED_ORIGINS = os.getenv(
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.environ.get("POSTGRES_DB", "booking_db"), # Имя базы из твоего docker-compose
+#         'USER': os.environ.get("POSTGRES_USER", "postgres"),
+#         'PASSWORD': os.environ.get("POSTGRES_PASSWORD", "postgres"),
+#         'HOST': os.environ.get("DB_HOST", "127.0.0.1"),
+#         'PORT': os.environ.get("PORT_DB", "5432"),
+#     }
+# }
+
 DATABASES = {
-  'default': {
-    'ENGINE': 'django.db.backends.postgresql',
-    'NAME': os.environ.get("POSTGRES_DB"),
-    'USER': os.environ.get("POSTGRES_USER"),
-    'PASSWORD': os.environ.get("POSTGRES_PASS"),
-    'HOST': os.environ.get("DB_HOST"),
-    'PORT': os.environ.get("PORT_DB"),
-  }
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }

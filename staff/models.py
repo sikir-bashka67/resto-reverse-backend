@@ -31,5 +31,4 @@ class Staff(AbstractUser):
             raise ValidationError('Имя сотрудника не может быть пустым.')
 
     def save(self, *args, **kwargs):
-        self.full_clean()
         super().save(*args, **kwargs)
