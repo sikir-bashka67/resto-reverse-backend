@@ -28,7 +28,6 @@ class Menu(models.Model):
             raise ValidationError({'price': 'Цена должна быть больше 0.'})
 
     def save(self, *args, **kwargs):
-        self.full_clean()
         super().save(*args, **kwargs)
 
 
@@ -48,7 +47,6 @@ class Category(models.Model):
             raise ValidationError({'name': 'Название категории не может быть пустым.'})
 
     def save(self, *args, **kwargs):
-        self.full_clean()
         super().save(*args, **kwargs)
 
 
@@ -66,8 +64,6 @@ class Profile(models.Model):
             raise ValidationError({'birth_date': 'Дата рождения не может быть в будущем.'})
 
     def save(self, *args, **kwargs):
-        if not self.pk:
-            self.price_at_ordering_time = self.menu_item.price
         super().save(*args, **kwargs)
 
 

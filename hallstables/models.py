@@ -21,12 +21,11 @@ class Hall(models.Model):
     def clean(self):
         self.name = (self.name or '').strip()
         if self.width <= 0 or self.height <= 0:
-            raise ValidationError({'width' and 'height': 'Размеры зала должны быть больше 0.'})
+            raise ValidationError({'size': 'Размеры зала должны быть больше 0.'})
         if not self.name:
             raise ValidationError({'name': 'Название зала не может быть пустым.'})
 
     def save(self, *args, **kwargs):
-        self.full_clean()
         super().save(*args, **kwargs)
 
     def capacity_info(self):
@@ -77,9 +76,9 @@ class Table(models.Model):
         super().save(*args, **kwargs)  # один save
 
         if is_new and not self.qr_code:
-            self._generate_qr()
+            self.generate_qr()
 
-    def _generate_qr(self):
+    def generate_qr(self):
         qr_data = f'https://resto-fresh.com/table/{self.pk}/'
         qr = qrcode.QRCode(version=1, box_size=10, border=4)
         qr.add_data(qr_data)
@@ -89,8 +88,7 @@ class Table(models.Model):
         buffer = BytesIO()
         img.save(buffer, format='PNG')
 
-        self.qr_code.save(f'table_qr_{self.pk}.png', File(buffer), save=False)
-        super().save(update_fields=['qr_code'])
+        self.qr_code.save(f'table_qr_{self.pk}.png', File(buffer), save=True)
 
     def __str__(self):
         return f'Стол {self.name} | {self.hall.name} | Мест: {self.seats} | Тип: {self.type}'

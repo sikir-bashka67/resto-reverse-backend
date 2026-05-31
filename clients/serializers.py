@@ -26,14 +26,12 @@ class ClientSerializer(serializers.ModelSerializer):
     def validate_name(self, value):
         val = (value or '').strip()
         if not val:
-            raise serializers.ValidationError('Имя клиента не может быть пустым.')
+            raise serializers.ValidationError({'name': 'Имя клиента не может быть пустым.'})
         return val
 
     def validate_password(self, value):
         if value and len(value) < 8:
-            raise serializers.ValidationError(
-                {'ending_at': 'Время окончания должно быть позже времени начала.'}
-            )
+            raise serializers.ValidationError({'password': 'Пароль не может быть длиной менее 8 символов.'})
         return value
 
     def create(self, validated_data):

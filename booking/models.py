@@ -37,10 +37,10 @@ class Booking(models.Model):
             raise ValidationError({'guest_count': 'Количество гостей должно быть больше 0.'})
 
         if self.table and self.guest_count > self.table.seats:
-            raise ValidationError({'table' and 'guest_count': f'Этот стол вмещает только {self.table.seats} гостей.'})
+            raise ValidationError({'table': f'Этот стол вмещает только {self.table.seats} гостей.'})
 
         if self.starting_at >= self.ending_at:
-            raise ValidationError({'starting_at' and 'ending_at': 'Время начала должно быть раньше времени окончания.'})
+            raise ValidationError({'starting_at': 'Время начала должно быть раньше времени окончания.'})
 
         if self.starting_at < timezone.now():
             raise ValidationError({'starting_at': 'Нельзя создать бронирование в прошлом.'})
