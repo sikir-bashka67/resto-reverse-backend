@@ -1,7 +1,6 @@
 from django.contrib.auth.hashers import make_password
 from django.core.validators import RegexValidator
 from rest_framework import serializers
-
 from staff.models import Staff
 
 
@@ -28,12 +27,12 @@ class StaffSerializer(serializers.ModelSerializer):
     def validate_name(self, value):
         value = (value or '').strip()
         if not value:
-            raise serializers.ValidationError('Имя сотрудника не может быть пустым.')
+            raise serializers.ValidationError({'name': 'Имя сотрудника не может быть пустым.'})
         return value
 
     def validate_password(self, value):
         if len(value) < 8:
-            raise serializers.ValidationError('Пароль должен содержать не менее 8 символов.')
+            raise serializers.ValidationError({'password': 'Пароль должен содержать не менее 8 символов.'})
         return value
 
     def create(self, validated_data):

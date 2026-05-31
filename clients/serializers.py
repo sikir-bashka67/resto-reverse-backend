@@ -31,7 +31,9 @@ class ClientSerializer(serializers.ModelSerializer):
 
     def validate_password(self, value):
         if value and len(value) < 8:
-            raise serializers.ValidationError('Пароль должен содержать не менее 8 символов.')
+            raise serializers.ValidationError(
+                {'ending_at': 'Время окончания должно быть позже времени начала.'}
+            )
         return value
 
     def create(self, validated_data):

@@ -23,9 +23,9 @@ class Menu(models.Model):
     def clean(self):
         self.name = (self.name or '').strip()
         if not self.name:
-            raise ValidationError('Название блюда не может быть пустым.')
+            raise ValidationError({'name': 'Название блюда не может быть пустым.'})
         if self.price <= 0:
-            raise ValidationError('Цена должна быть больше 0.')
+            raise ValidationError({'price': 'Цена должна быть больше 0.'})
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -45,7 +45,7 @@ class Category(models.Model):
     def clean(self):
         self.name = (self.name or '').strip()
         if not self.name:
-            raise ValidationError('Название категории не может быть пустым.')
+            raise ValidationError({'name': 'Название категории не может быть пустым.'})
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -63,10 +63,11 @@ class Profile(models.Model):
 
     def clean(self):
         if self.birth_date and self.birth_date > timezone.now().date():
-            raise ValidationError('Дата рождения не может быть в будущем.')
+            raise ValidationError({'birth_date': 'Дата рождения не может быть в будущем.'})
 
     def save(self, *args, **kwargs):
-        self.full_clean()
+        if not self.pk:
+            self.price_at_ordering_time = self.menu_item.price
         super().save(*args, **kwargs)
 
 
@@ -115,12 +116,13 @@ class PreOrderItem(models.Model):
 
     def clean(self):
         if self.price_at_ordering_time <= 0:
-            raise ValidationError('Цена на момент заказа должна быть больше 0.')
+            raise ValidationError({'price_at_ordering_time': 'Цена на момент заказа должна быть больше 0.'})
         if self.quantity <= 0:
-            raise ValidationError('Количество должно быть больше 0.')
+            raise ValidationError({'quantity': 'Количество должно быть больше 0.'})
 
     def save(self, *args, **kwargs):
-        self.full_clean()
+        if not self.pk:
+            self.price_at_ordering_time = self.menu_item.price
         super().save(*args, **kwargs)
 
 
@@ -135,10 +137,11 @@ class OrderItem(models.Model):
 
     def clean(self):
         if self.price_at_ordering_time <= 0:
-            raise ValidationError('Цена на момент заказа должна быть больше 0.')
+            raise ValidationError({'price_at_ordering_time': 'Цена на момент заказа должна быть больше 0.'})
         if self.quantity <= 0:
-            raise ValidationError('Количество должно быть больше 0.')
+            raise ValidationError({'quantity':'Количество должно быть больше 0.'})
 
     def save(self, *args, **kwargs):
-        self.full_clean()
+        if not self.pk:
+            self.price_at_ordering_time = self.menu_item.price
         super().save(*args, **kwargs)

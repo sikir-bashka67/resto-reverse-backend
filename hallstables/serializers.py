@@ -1,5 +1,4 @@
 from rest_framework import serializers
-
 from hallstables.models import Hall, Table
 
 
@@ -13,7 +12,7 @@ class HallSerializer(serializers.ModelSerializer):
         height = data.get('height') if 'height' in data else (self.instance.height if self.instance else None)
 
         if (width is not None and width <= 0) or (height is not None and height <= 0):
-            raise serializers.ValidationError('Размеры зала должны быть больше 0.')
+            raise serializers.ValidationError({'width' and 'height': 'Размеры зала должны быть больше 0.'})
         return data
 
 
@@ -33,6 +32,6 @@ class TableSerializer(serializers.ModelSerializer):
 
         if hall and x is not None and y is not None:
             if x < 0 or x > hall.width or y < 0 or y > hall.height:
-                raise serializers.ValidationError('Координаты должны находиться в пределах размеров зала.')
+                raise serializers.ValidationError({'x' and 'y': 'Координаты должны находиться в пределах размеров зала.'})
 
         return data

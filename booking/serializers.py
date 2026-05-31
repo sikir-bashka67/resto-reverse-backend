@@ -1,6 +1,5 @@
 from django.utils import timezone
 from rest_framework import serializers
-
 from booking.models import Booking
 
 
@@ -10,22 +9,23 @@ class BookingSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def validate(self, data):
-        starting_at = data.get('starting_at') or (self.instance.starting_at if self.instance else None)
-        ending_at = data.get('ending_at') or (self.instance.ending_at if self.instance else None)
+        instance = self.instance
+        starting_at = data.get('starting_at', getattr(instance, 'starting_at', None))
+        ending_at = data.get('ending_at', getattr(instance, 'ending_at', None))
         guest_count = data.get('guest_count') or (self.instance.guest_count if self.instance else None)
         table = data.get('table') or (self.instance.table if self.instance else None)
 
         if starting_at and ending_at:
             if starting_at >= ending_at:
-                raise serializers.ValidationError('Дата окончания должна быть позже даты начала.')
+                raise serializers.ValidationError({'ending_at': 'Дата окончания должна быть позже даты начала.'})
             if starting_at < timezone.now():
-                raise serializers.ValidationError('Бронирование не может быть создано в прошлом.')
+                raise serializers.ValidationError({'starting_at': 'Бронирование не может быть создано в прошлом.'})
 
         if guest_count and table:
             if guest_count <= 0:
-                raise serializers.ValidationError('Количество гостей должно быть больше 0.')
+                raise serializers.ValidationError({'guest_count': 'Количество гостей должно быть больше 0.'})
             if guest_count > table.seats:
-                raise serializers.ValidationError('Количество гостей не может превышать количество мест за столом.')
+                raise serializers.ValidationError({'guest_count': 'Количество гостей не может превышать количество мест за столом.'})
 
         if table and starting_at and ending_at:
             overlap = Booking.objects.filter(
@@ -36,6 +36,6 @@ class BookingSerializer(serializers.ModelSerializer):
             if self.instance:
                 overlap = overlap.exclude(pk=self.instance.pk)
             if overlap.exists():
-                raise serializers.ValidationError('Этот стол уже забронирован на выбранное время.')
+                raise serializers.ValidationError({'table': 'Этот стол уже забронирован на выбранное время.'})
 
         return data

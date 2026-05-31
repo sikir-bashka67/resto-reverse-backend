@@ -34,16 +34,16 @@ class Booking(models.Model):
 
     def clean(self):
         if self.guest_count <= 0:
-            raise ValidationError('Количество гостей должно быть больше 0.')
+            raise ValidationError({'guest_count': 'Количество гостей должно быть больше 0.'})
 
         if self.table and self.guest_count > self.table.seats:
-            raise ValidationError(f'Этот стол вмещает только {self.table.seats} гостей.')
+            raise ValidationError({'table' and 'guest_count': f'Этот стол вмещает только {self.table.seats} гостей.'})
 
         if self.starting_at >= self.ending_at:
-            raise ValidationError('Время начала должно быть раньше времени окончания.')
+            raise ValidationError({'starting_at' and 'ending_at': 'Время начала должно быть раньше времени окончания.'})
 
         if self.starting_at < timezone.now():
-            raise ValidationError('Нельзя создать бронирование в прошлом.')
+            raise ValidationError({'starting_at': 'Нельзя создать бронирование в прошлом.'})
 
         overlap = Booking.objects.filter(
             table=self.table,
@@ -52,8 +52,7 @@ class Booking(models.Model):
         ).exclude(pk=self.pk)
 
         if overlap.exists():
-            raise ValidationError('Этот стол уже забронирован на выбранное время.')
+            raise ValidationError({'booking': 'Этот стол уже забронирован на выбранное время.'})
 
     def save(self, *args, **kwargs):
-        self.full_clean()
         super().save(*args, **kwargs)

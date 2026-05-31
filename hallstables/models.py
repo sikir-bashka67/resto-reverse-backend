@@ -1,5 +1,4 @@
 from io import BytesIO
-
 import qrcode
 from django.core.exceptions import ValidationError
 from django.core.files import File
@@ -22,9 +21,9 @@ class Hall(models.Model):
     def clean(self):
         self.name = (self.name or '').strip()
         if self.width <= 0 or self.height <= 0:
-            raise ValidationError('Размеры зала должны быть больше 0.')
+            raise ValidationError({'width' and 'height': 'Размеры зала должны быть больше 0.'})
         if not self.name:
-            raise ValidationError('Название зала не может быть пустым.')
+            raise ValidationError({'name': 'Название зала не может быть пустым.'})
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -67,28 +66,31 @@ class Table(models.Model):
         self.name = (self.name or '').strip()
 
         if not self.name:
-            raise ValidationError('Название стола не может быть пустым.')
+            raise ValidationError({'name': 'Название стола не может быть пустым.'})
         if self.seats <= 0:
-            raise ValidationError('Количество мест должно быть больше 0.')
+            raise ValidationError({'seats': 'Количество мест должно быть больше 0.'})
         if self.x < 0 or self.y < 0 or self.x > self.hall.width or self.y > self.hall.height:
-            raise ValidationError('Координаты стола должны находиться в пределах зала.')
+            raise ValidationError({'x' and 'y': 'Координаты стола должны находиться в пределах зала.'})
 
     def save(self, *args, **kwargs):
-        self.full_clean()
-        super().save(*args, **kwargs)
+        is_new = self.pk is None
+        super().save(*args, **kwargs)  # один save
 
-        if not self.qr_code:
-            qr_data = f'https://resto-fresh.com/table/{self.pk}/'
-            qr = qrcode.QRCode(version=1, box_size=10, border=4)
-            qr.add_data(qr_data)
-            qr.make(fit=True)
-            img = qr.make_image(fill_color='black', back_color='white')
+        if is_new and not self.qr_code:
+            self._generate_qr()
 
-            buffer = BytesIO()
-            img.save(buffer, format='PNG')
+    def _generate_qr(self):
+        qr_data = f'https://resto-fresh.com/table/{self.pk}/'
+        qr = qrcode.QRCode(version=1, box_size=10, border=4)
+        qr.add_data(qr_data)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color='black', back_color='white')
 
-            self.qr_code.save(f'table_qr_{self.pk}.png', File(buffer), save=False)
-            super().save(update_fields=['qr_code'])
+        buffer = BytesIO()
+        img.save(buffer, format='PNG')
+
+        self.qr_code.save(f'table_qr_{self.pk}.png', File(buffer), save=False)
+        super().save(update_fields=['qr_code'])
 
     def __str__(self):
         return f'Стол {self.name} | {self.hall.name} | Мест: {self.seats} | Тип: {self.type}'

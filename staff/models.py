@@ -24,11 +24,11 @@ class Staff(AbstractUser):
 
         normalized_phone = self.phone.lstrip('+')
         if not normalized_phone.isdigit():
-            raise ValidationError("Телефон должен содержать только цифры и может начинаться с '+'.")
+            raise ValidationError({'phone': "Телефон должен содержать только цифры и может начинаться с '+'."})
         if not 9 <= len(normalized_phone) <= 15:
-            raise ValidationError('Длина телефона должна быть от 9 до 15 цифр.')
+            raise ValidationError({'phone': 'Длина телефона должна быть от 9 до 15 цифр.'})
         if not self.name:
-            raise ValidationError('Имя сотрудника не может быть пустым.')
+            raise ValidationError({'name': 'Имя сотрудника не может быть пустым.'})
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
