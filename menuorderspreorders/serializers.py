@@ -41,7 +41,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         }
 
     def validate_birth_date(self, value):
-        if value > timezone.now().date():
+        if value and value > timezone.now().date():
             raise serializers.ValidationError('Дата рождения не может быть в будущем.')
         return value
 
@@ -86,5 +86,5 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         if data.get('quantity', 0) <= 0:
-            raise serializers.ValidationError('Количество должно быть больше 0.')
+            raise serializers.ValidationError({'quantity': 'Количество должно быть больше 0.'})
         return data
