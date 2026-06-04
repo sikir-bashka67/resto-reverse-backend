@@ -1,5 +1,5 @@
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAdminUser
 from clients.models import Client
 from clients.serializers import ClientSerializer
 from rest_framework import filters
@@ -13,7 +13,7 @@ User = get_user_model()
 class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminUser]
 
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['name', 'phone']
