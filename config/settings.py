@@ -3,7 +3,6 @@ from datetime import timedelta
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'dev-only-secret-key')
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 SITE_ID = 1
@@ -127,3 +126,9 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+BOOKING_CLEANUP_INTERVAL_MINUTES = 15
+
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
+CELERY_TIMEZONE = 'UTC'

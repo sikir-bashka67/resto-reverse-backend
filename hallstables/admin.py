@@ -10,4 +10,7 @@ class HallAdmin(admin.ModelAdmin):
     list_display = ['name', 'capacity_info']
     inlines = [TableInline]
 
-admin.site.register(Table)
+@admin.register(Table)
+class TableAdmin(admin.ModelAdmin):
+    search_fields = ['name', 'table_number']
+    list_display = ['name', 'table_number', 'hall', 'seats', 'status']

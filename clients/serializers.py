@@ -36,13 +36,12 @@ class ClientSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         password = validated_data.pop('password', None)
-        instance = self.Meta.model(**validated_data)
-        instance.save()
-
-        if password and instance.user:
-            instance.user.set_password(password)
-            instance.user.save()
-        return instance
+        user = User.objects.create_user(
+            username=validated_data['email'],
+            email=validated_data['email'],
+            password=password or User.objects.make_random_password()
+        )
+        return Client.objects.create(user=user, **validated_data)
 
     def update(self, instance, validated_data):
         password = validated_data.pop('password', None)

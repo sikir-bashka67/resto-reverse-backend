@@ -1,6 +1,5 @@
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import viewsets
-
 from .models import Category, Menu, Order, PreOrder, Profile
 from .serializers import CategorySerializer, MenuSerializer, OrderSerializer, PreOrderSerializer, ProfileSerializer
 
@@ -8,13 +7,21 @@ from .serializers import CategorySerializer, MenuSerializer, OrderSerializer, Pr
 class MenuViewSet(viewsets.ModelViewSet):
     queryset = Menu.objects.select_related('category').all()
     serializer_class = MenuSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [IsAuthenticated()]
+        return [IsAdminUser()]
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [IsAuthenticated()]
+        return [IsAdminUser()]
 
 
 class ProfileViewSet(viewsets.ModelViewSet):

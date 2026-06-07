@@ -1,6 +1,10 @@
 from django.utils import timezone
 from rest_framework import serializers
 from booking.models import Booking
+from datetime import timedelta
+from django.conf import settings
+
+CLEANUP_INTERVAL = timedelta(minutes=settings.BOOKING_CLEANUP_INTERVAL_MINUTES)
 
 
 class BookingSerializer(serializers.ModelSerializer):
@@ -12,8 +16,8 @@ class BookingSerializer(serializers.ModelSerializer):
         instance = self.instance
         starting_at = data.get('starting_at', getattr(instance, 'starting_at', None))
         ending_at = data.get('ending_at', getattr(instance, 'ending_at', None))
-        guest_count = data.get('guest_count') or (self.instance.guest_count if self.instance else None)
-        table = data.get('table') or (self.instance.table if self.instance else None)
+        guest_count = data.get('guest_count', getattr(instance, 'guest_count', None))
+        table = data.get('table', getattr(instance, 'table', None))
 
         if starting_at and ending_at:
             if starting_at >= ending_at:
@@ -30,12 +34,16 @@ class BookingSerializer(serializers.ModelSerializer):
         if table and starting_at and ending_at:
             overlap = Booking.objects.filter(
                 table=table,
-                starting_at__lt=ending_at,
-                ending_at__gt=starting_at,
-            )
-            if self.instance:
-                overlap = overlap.exclude(pk=self.instance.pk)
+                starting_at__lt=ending_at + CLEANUP_INTERVAL,
+                ending_at__gt=starting_at - CLEANUP_INTERVAL,
+            ).exclude(status='cancelled')
+
+            if instance:
+                overlap = overlap.exclude(pk=instance.pk)
+
             if overlap.exists():
-                raise serializers.ValidationError({'table': 'Этот стол уже забронирован на выбранное время.'})
+                raise serializers.ValidationError(
+                    {'table': 'Этот стол уже забронирован на выбранное время (15 мин на уборку).'}
+                )
 
         return data
