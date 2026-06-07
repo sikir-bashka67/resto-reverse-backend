@@ -1,5 +1,7 @@
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.decorators import action
 from rest_framework import viewsets
+from rest_framework.response import Response
 from .models import Category, Menu, Order, PreOrder, Profile
 from .serializers import CategorySerializer, MenuSerializer, OrderSerializer, PreOrderSerializer, ProfileSerializer
 
@@ -7,16 +9,6 @@ from .serializers import CategorySerializer, MenuSerializer, OrderSerializer, Pr
 class MenuViewSet(viewsets.ModelViewSet):
     queryset = Menu.objects.select_related('category').all()
     serializer_class = MenuSerializer
-
-    def get_permissions(self):
-        if self.action in ['list', 'retrieve']:
-            return [IsAuthenticated()]
-        return [IsAdminUser()]
-
-
-class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
@@ -54,3 +46,21 @@ class PreOrderViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve', 'items']:
+            return [IsAuthenticated()]
+        return [IsAdminUser()]
+
+    @action(detail=True, methods=['get'], url_path='items')
+    def items(self, request, pk=None):
+        category = self.get_object()
+        menu_items = Menu.objects.filter(category=category, is_available=True)
+        serializer = MenuSerializer(menu_items, many=True)
+        return Response(serializer.data)

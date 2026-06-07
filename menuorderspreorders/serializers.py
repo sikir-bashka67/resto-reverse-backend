@@ -62,10 +62,10 @@ class PreOrderItemSerializer(serializers.ModelSerializer):
         model = PreOrderItem
         fields = '__all__'
 
-    def validate_quantity(self, data):
-        if data.get('quantity', 0) <= 0:
+    def validate_quantity(self, value):
+        if value <= 0:
             raise serializers.ValidationError('Количество должно быть больше 0.')
-        return data
+        return value
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -84,7 +84,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
         model = OrderItem
         fields = '__all__'
 
-    def validate_quantity(self, data):
-        if data.get('quantity', 0) <= 0:
+    def validate_quantity(self, value):
+        if value <= 0:
             raise serializers.ValidationError('Количество должно быть больше 0.')
-        return data
+        return value

@@ -11,7 +11,7 @@ from clients.views import ClientViewSet
 from hallstables.views import HallViewSet, TableViewSet
 from menuorderspreorders.views import CategoryViewSet, MenuViewSet, OrderViewSet, PreOrderViewSet, ProfileViewSet
 from staff.views import StaffViewSet
-from clients.views import RegisterView
+from clients.views import RegisterView, LogoutView, DeleteAccountView, PasswordResetView, PasswordResetConfirmView, VerifyEmailView
 
 router = routers.DefaultRouter()
 router.register(r'staff', StaffViewSet)
@@ -43,7 +43,12 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/auth/register/', RegisterView.as_view(), name='auth_register'),
     path('api/auth/login/', TokenObtainPairView.as_view(), name='auth_login'),
-    path('api/auth/refresh/', TokenRefreshView.as_view(), name='auth_token_refresh')
+    path('api/auth/refresh/', TokenRefreshView.as_view(), name='auth_token_refresh'),
+    path('api/auth/logout/', LogoutView.as_view(), name='auth_logout'),
+    path('api/auth/delete-account/', DeleteAccountView.as_view(), name='auth_delete_account'),
+    path('api/auth/password-reset/', PasswordResetView.as_view(), name='auth_password_reset'),
+    path('api/auth/password-reset-confirm/', PasswordResetConfirmView.as_view(), name='auth_password_reset_confirm'),
+    path('api/auth/verify-email/', VerifyEmailView.as_view(), name='auth_verify_email')
 ]
 
 if settings.DEBUG:
