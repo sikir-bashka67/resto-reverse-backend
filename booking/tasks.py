@@ -6,7 +6,7 @@ from django.core.mail import send_mail
 def send_booking_reminder(booking_id):
     from booking.models import Booking
     try:
-        booking = Booking.objects.select_related('client').get(pk=booking_id)
+        booking = Booking.objects.select_related('client', 'table').get(pk=booking_id)
     except Booking.DoesNotExist:
         return
 

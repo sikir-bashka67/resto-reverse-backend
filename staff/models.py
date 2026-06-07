@@ -22,11 +22,12 @@ class Staff(AbstractUser):
         self.name = (self.name or '').strip()
         self.phone = (self.phone or '').strip()
 
-        normalized_phone = self.phone.lstrip('+')
-        if not normalized_phone.isdigit():
-            raise ValidationError({'phone': "Телефон должен содержать только цифры и может начинаться с '+'."})
-        if not 9 <= len(normalized_phone) <= 15:
-            raise ValidationError({'phone': 'Длина телефона должна быть от 9 до 15 цифр.'})
+        if self.phone:
+            normalized_phone = self.phone.lstrip('+')
+            if not normalized_phone.isdigit():
+                raise ValidationError({'phone': "Телефон должен содержать только цифры и может начинаться с '+'."})
+            if not 9 <= len(normalized_phone) <= 15:
+                raise ValidationError({'phone': 'Длина телефона должна быть от 9 до 15 цифр.'})
         if not self.name:
             raise ValidationError({'name': 'Имя сотрудника не может быть пустым.'})
 
