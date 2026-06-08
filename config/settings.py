@@ -3,6 +3,8 @@ from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv()
+os.environ['PGCLIENTENCODING'] = 'utf8'
+os.environ['PGCLIENTENCODING'] = 'UTF8'
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -33,7 +35,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'phonenumber_field',
     'django_filters',
-    'qrcode',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist'
 ]
@@ -116,21 +117,17 @@ CORS_ALLOWED_ORIGINS = os.getenv(
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.environ.get("POSTGRES_DB", "booking_db"), # Имя базы из твоего docker-compose
-#         'USER': os.environ.get("POSTGRES_USER", "postgres"),
-#         'PASSWORD': os.environ.get("POSTGRES_PASSWORD", "postgres"),
-#         'HOST': os.environ.get("DB_HOST", "127.0.0.1"),
-#         'PORT': os.environ.get("PORT_DB", "5432"),
-#     }
-# }
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('POSTGRES_DB', 'booking_db'),
+        'USER': os.environ.get('POSTGRES_USER', 'postgres'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'postgres'),
+        'HOST': os.environ.get('DB_HOST', '127.0.0.1'),
+        'PORT': os.environ.get('PORT_DB', '5432'),
+        'OPTIONS': {
+            'client_encoding': 'UTF8',
+        },
     }
 }
 
@@ -139,3 +136,11 @@ BOOKING_CLEANUP_INTERVAL_MINUTES = 15
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
 CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
 CELERY_TIMEZONE = 'UTC'
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 25
+DEFAULT_FROM_EMAIL = 'noreply@resto-reserve.com'
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')

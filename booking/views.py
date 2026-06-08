@@ -25,29 +25,26 @@ class BookingViewSet(viewsets.ModelViewSet):
         return Booking.objects.select_related('table', 'client').filter(client__user=self.request.user)
 
     def perform_create(self, serializer):
-        with transaction.atomic():
-            table = serializer.validated_data['table']
-            starting_at = serializer.validated_data['starting_at']
-            ending_at = serializer.validated_data['ending_at']
+        table = serializer.validated_data['table']
+        starting_at = serializer.validated_data['starting_at']
+        ending_at = serializer.validated_data['ending_at']
 
-            Table.objects.select_for_update().get(pk=table.pk)
+        overlap = Booking.objects.filter(
+            table=table,
+            starting_at__lt=ending_at + CLEANUP_INTERVAL,
+            ending_at__gt=starting_at - CLEANUP_INTERVAL,
+        ).exclude(status='cancelled')
 
-            overlap = Booking.objects.filter(
-                table=table,
-                starting_at__lt=ending_at + CLEANUP_INTERVAL,
-                ending_at__gt=starting_at - CLEANUP_INTERVAL,
-            ).exclude(status='cancelled')
+        if overlap.exists():
+            raise ValidationError({'table': 'Этот стол уже забронирован на выбранное время.'})
 
-            if overlap.exists():
-                raise ValidationError({'table': 'Этот стол уже забронирован на выбранное время.'})
+        booking = serializer.save()
 
-            booking = serializer.save()
-
+        try:
             reminder_time = booking.starting_at - timedelta(hours=2)
-            send_booking_reminder.apply_async(
-                args=[booking.pk],
-                eta=reminder_time,
-            )
+            send_booking_reminder.apply_async(args=[booking.pk], eta=reminder_time)
+        except Exception:
+            pass
 
     @action(detail=False, methods=['get'], url_path='me')
     def my_bookings(self, request):

@@ -69,11 +69,11 @@ class Table(models.Model):
         if self.seats <= 0:
             raise ValidationError({'seats': 'Количество мест должно быть больше 0.'})
         if self.x < 0 or self.y < 0 or self.x > self.hall.width or self.y > self.hall.height:
-            raise ValidationError({'cords': 'Координаты стола должны находиться в пределах зала.'})
+            raise ValidationError({'x': 'Координаты стола должны находиться в пределах зала.'})
 
     def save(self, *args, **kwargs):
         is_new = self.pk is None
-        super().save(*args, **kwargs)  # один save
+        super().save(*args, **kwargs)
 
         if is_new and not self.qr_code:
             self.generate_qr()

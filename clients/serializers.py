@@ -54,11 +54,18 @@ class ClientSerializer(serializers.ModelSerializer):
 
         return super().update(instance, validated_data)
 
-
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
     name = serializers.CharField(write_only=True)
-    phone = serializers.CharField(write_only=True)
+    phone = serializers.CharField(
+        write_only=True,
+        validators=[
+            RegexValidator(
+                regex=r'^\+?\d{9,15}$',
+                message="Телефон должен содержать только цифры и может начинаться с '+'.",
+            )
+        ]
+    )
 
     class Meta:
         model = User
